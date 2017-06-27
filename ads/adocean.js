@@ -5,7 +5,9 @@ import {writeScript, validateData} from '../3p/3p';
  * @param {!Object} data
  */
 export function adocean(global, data) {
-    //validateData(data, [['src']]); // parametry przekazywane w tagu amp-ad
+    validateData(data, ['aoSrv', 'aoZid'], []);
 
-    //writeScript(global, url); // zaladowanie zewnetrznego skryptu
+    let url = "https://" + data.aoSrv + "/_" + (new Date()).getTime() + "/ad.js?id=" + data.aoZid; // todo dimenssions etc.
+
+    writeScript(global, url); // zaladowanie zewnetrznego skryptu
 }
