@@ -10,7 +10,7 @@ function getBoolFromString(str) {
 function setAdoConfig(global, data) {
     if (global.ado) {
         global.ado.config({
-            mode: data.mode,
+            mode: data.adoMode,
             xml: getBoolFromString(data.xml),
             characterEncoding: getBoolFromString(data.characterEncoding)
         });
@@ -18,16 +18,37 @@ function setAdoConfig(global, data) {
 }
 
 function appendPlacement(global, data) {
+    console.log('placement', data);
     let placement = global.document.createElement('div');
-    placement.id = data.id;
+    placement.id = data.placementId;
 
     let dom = global.document.getElementById('c');
     dom.appendChild(placement);
 
     if (global.ado) {
         global.ado.placement({
-            id: data.id,
+            id: data.placementId,
             server: data.emitter + EMITTER_DOMAIN
+        });
+    }
+}
+
+function appendMasterSlave(global, data) {
+    console.log('master-slave', data);
+    let slave = global.document.createElement('div');
+    slave.id = data.slaveId;
+
+    let dom = global.document.getElementById('c');
+    dom.appendChild(slave);
+
+    if (global.ado) {
+        global.ado.master({
+            id: data.masterId,
+            server: data.emitter + EMITTER_DOMAIN
+        });
+
+        global.ado.slave(data.slaveId, {
+            myMaster: data.masterId
         });
     }
 }
@@ -38,22 +59,21 @@ function appendPlacement(global, data) {
  */
 export function adocean(global, data) {
     validateData(data, [
-        'mode',
+        'adoMode',
         'xml',
         'characterEncoding',
         'emitter',
-        'type',
-        'id'
+        'type'
     ]);
 
     const emitter = data.emitter;
-    
+
     let adoUrl = 'https://' + emitter + EMITTER_DOMAIN + ADO_JS_PATH;
 
     writeScript(global, adoUrl, () => {
         setAdoConfig(global, data);
 
-        if (data.type === 'placement') {
+        if (typeof data.placementId !== 'undefined') {
             appendPlacement(global, data);
         } else {
             appendMasterSlave(global, data);
