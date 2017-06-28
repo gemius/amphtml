@@ -1,7 +1,7 @@
 import {writeScript, validateData} from '../3p/3p';
 
 const EMITTER_DOMAIN = '.adocean.pl';
-const ADO_JS_PATH = '/files/js/ado.js';
+const ADO_JS_PATH = '/files/js/ado.FIF.test.js';
 
 function getBoolFromString(str) {
     return str === 'true';
@@ -9,20 +9,31 @@ function getBoolFromString(str) {
 
 function setAdoConfig(global, data) {
     if (global.ado) {
-        global.ado.config({
+        let config = {
             mode: data.adoMode,
             xml: getBoolFromString(data.xml),
             characterEncoding: getBoolFromString(data.characterEncoding)
-        });
+        };
+
+        if (data.adoMode === 'new' && getBoolFromString(data.fifEnabled)) {
+            config.fif = {
+                enabled: data.fifEnabled || false,
+                force: data.fifForce || false,
+                sequential: data.fifSequential || false
+            }
+        }
+
+        console.log('config', config);
+
+        global.ado.config(config);
     }
 }
 
 function appendPlacement(global, data) {
-    console.log('placement', data);
     let placement = global.document.createElement('div');
     placement.id = data.placementId;
 
-    let dom = global.document.getElementById('c');
+    const dom = global.document.getElementById('c');
     dom.appendChild(placement);
 
     if (global.ado) {
@@ -34,7 +45,6 @@ function appendPlacement(global, data) {
 }
 
 function appendMasterSlave(global, data) {
-    console.log('master-slave', data);
     let slave = global.document.createElement('div');
     slave.id = data.slaveId;
 
@@ -42,6 +52,10 @@ function appendMasterSlave(global, data) {
     dom.appendChild(slave);
 
     if (global.ado) {
+        ado.onEmit(function(masterlikeId, masterlikeInstanceId) {
+            console.log("recived emiter response for master with id " + masterlikeId + " ; master isntance id: " + masterlikeInstanceId);
+        });
+
         global.ado.master({
             id: data.masterId,
             server: data.emitter + EMITTER_DOMAIN
