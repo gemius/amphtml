@@ -23,9 +23,8 @@ function setAdoConfig(global, data) {
             }
         }
 
-        console.log('config', config);
-
         global.ado.config(config);
+        global.ado.preview({enabled: true, emiter: "myao.adocean.pl", id: "y6g3tTbLJv6vLRZ.AfyeiXkCPM0gL3CNAik2rwTzhKD.N7"});
     }
 }
 
@@ -52,18 +51,16 @@ function appendMasterSlave(global, data) {
     dom.appendChild(slave);
 
     if (global.ado) {
-        ado.onEmit(function(masterlikeId, masterlikeInstanceId) {
-            console.log("recived emiter response for master with id " + masterlikeId + " ; master isntance id: " + masterlikeInstanceId);
-        });
+        setTimeout(function() {
+            global.ado.master({
+                id: data.masterId,
+                server: data.emitter + EMITTER_DOMAIN
+            });
 
-        global.ado.master({
-            id: data.masterId,
-            server: data.emitter + EMITTER_DOMAIN
-        });
-
-        global.ado.slave(data.slaveId, {
-            myMaster: data.masterId
-        });
+            global.ado.slave(data.slaveId, {
+                myMaster: data.masterId
+            });
+        }, 100);
     }
 }
 
